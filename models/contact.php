@@ -80,26 +80,56 @@ class Contacts
         if (file_exists($this->_filePath))
         {
             $contactsFile = fopen($this->_filePath, "r");
-            $this->_contacts = [];
-            while (!feof($contactsFile))
+            try 
             {
-                $contact = unserialize(fgets($contactsFile));
-                if ($contact)
-                    $this->_contacts[] = $contact ;
+                $this->_contacts = [];
+                while (!feof($contactsFile))
+                {
+                    $contact = unserialize(fgets($contactsFile));
+                    if ($contact)
+                        $this->_contacts[] = $contact ;
+                }
+                $this->sortContacts();
             }
-            fclose($contactsFile);
-            $this->sortContacts();
+            catch (Exception $e)
+            {
+                echo 'Exception: ',  $e->getMessage();
+            }
+            finally
+            {
+                fclose($contactsFile);             
+            }
+           
         }
     }
 
     private function write()
     {
         $contactsFile = fopen("contacts.txt", "w");
-        foreach($this->_contacts as $contact)
+        if (flock($contactsFile, LOCK_EX))
         {
-            fwrite($contactsFile, serialize($contact)."\n");
+            try
+            {
+                foreach($this->_contacts as $contact)
+                {
+                    fwrite($contactsFile, serialize($contact)."\n");
+                }
+                fflush($contactsFile);
+            }
+            catch (Exception $e)
+            {
+                echo 'Exception: ',  $e->getMessage();
+            }
+            finally
+            {
+                flock($contactsFile, LOCK_UN);
+                fclose($contactsFile);
+            }           
         }
-        fclose($contactsFile);
+        else
+        {
+            echo "Impossible de verrouiller le fichier contacts.txt !";
+        }
         $this->read();
     }
 
