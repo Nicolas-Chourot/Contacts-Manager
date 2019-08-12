@@ -51,9 +51,9 @@
 
             function addContactsHeader()
             {
-                addCell('Name','header-cell');
-                addCell('Email','header-cell');
-                addCell('Phone','header-cell');
+                addCell('Nom','header-cell');
+                addCell('Courriel','header-cell');
+                addCell('Téléphone','header-cell');
                 addCell(makeButton("addContact","addContact","Ajouter un contact", 'plus'),'header-cell');    
                 addCell(' ','header-cell');
             }
